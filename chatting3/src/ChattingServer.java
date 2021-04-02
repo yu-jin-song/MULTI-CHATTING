@@ -11,10 +11,10 @@ public class ChattingServer {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		ChatServer mainFrame = new ChatServer("Chatting Server");
+		ChatServer mainFrame = new ChatServer("Server");
 		mainFrame.initForm();
 		mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		mainFrame.setSize(500, 350);
+		mainFrame.setSize(250, 400);
 		mainFrame.setVisible(true);
 		
 	}
@@ -99,7 +99,6 @@ class ChatServer extends JFrame {
 		sendTextBox.addActionListener(sendMsgHandler);
 		
 		midPan.setLayout(new BorderLayout());
-		midPan.add("North", new JLabel("접속자"));
 		midPan.add("Center", scrollPane11);
 		midPan.add("South", sendTextBox);
 		
@@ -122,7 +121,7 @@ class ChatServer extends JFrame {
 		}
 		
 		//server 채팅화면에 출력
-		showDlgBox.append(msg + "\n");
+		showDlgBox.append(  msg + "\n");
 		showDlgBox.setCaretPosition(showDlgBox.getDocument().getLength()); // 스크롤바의 위치를 맨 아래로
 	}
 	
@@ -256,22 +255,17 @@ class ServerReceiveThread extends Thread {	// 메시지 전달 처리 thread
 			strInput = socketIn.readLine();
 			
 			if(strInput.equals("ChatClient")) {	// client 확인
-				socketOut.println("<단축키> /h(도움말), /u(접속자목록), /r 이름 (이름 변경)");
+				socketOut.println(  "<단축키> /h(도움말), /u(접속자목록)");
 				strName = socketIn.readLine();
 				
 				chatServer.broadcast("[" + strName + "] 님이 입장하셨습니다.");
 				
 				while((strInput = socketIn.readLine()) != null) {	// client에서 가져올 정보가 존재하는 동안
 					if(strInput.equals("/h")) {
-						socketOut.println("<단축키> /h(도움말), /u(접속자목록), /r 이름 (이름 변경)");
+						socketOut.println(  "<단축키> /h(도움말), /u(접속자목록)");
 					}
 					else if(strInput.equals("/u")) {
 						sendUserList();
-					}
-					else if(strInput.regionMatches(0, "/r", 0, 2)) {
-						String new_name = strInput.substring(2).trim();
-						chatServer.broadcast("접속자  " + strName + " 의 이름이 [" + new_name + "](으)로 바뀌었습니다.");
-						strName = new_name;
 					}
 					else {	// 메시지 출력
 						chatServer.broadcast("[" + strName + "] " + strInput);
