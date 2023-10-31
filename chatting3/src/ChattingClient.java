@@ -126,8 +126,6 @@ public class ChattingClient extends JFrame {
 	
 	class disConnectHandler implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
-			showDlgBox.append("disconnect \n");
-			
 			try {
 				socketOut.close();
 				socketIn.close();
@@ -194,7 +192,7 @@ class ChatReceiveThread extends Thread {	// 전송되어 온 메시지 처리 Thread
 			}	// server를 통하여 출력하므로 직접 출력x
 		}
 		catch(Exception e) {
-			showDlgBox.append("연결이 끊겼습니다.");
+			showDlgBox.append("연결이 끊겼습니다. \n");
 		}
 	}
 }	//-------------------ChatReceiveThread class 끝

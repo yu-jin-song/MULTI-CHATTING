@@ -114,15 +114,33 @@ class ChatServer extends JFrame {
 		setVisible(true);
 	} //----------------------initForm 끝
 	
+	// 전체 채팅방 전송
 	public void broadcast(String msg) throws IOException {
-		for(int i=0; i<vClient.size(); i++) {
-			ServerReceiveThread trd = ((ServerReceiveThread)vClient.elementAt(i));	//접속자별 Msg 처리 Thread 생성
-			trd.socketOut.println(msg);	// 각 객체로 message 전달하여 처리
-		}
-		
-		//server 채팅화면에 출력
-		showDlgBox.append(  msg + "\n");
-		showDlgBox.setCaretPosition(showDlgBox.getDocument().getLength()); // 스크롤바의 위치를 맨 아래로
+		sendMsgToClients(msg, null);
+		appendMsgToChat(msg);
+	}
+	
+	// 해당 클라이언트 제외 전송
+	public void broadcast(String msg, ServerReceiveThread excludedClient) throws IOException {
+		sendMsgToClients(msg, excludedClient);
+		appendMsgToChat(msg);
+	}
+	
+	
+	// 채팅 메시지 전송(공통)
+	private void sendMsgToClients(String msg, ServerReceiveThread excludedClient) {
+	    for (int i = 0; i < vClient.size(); i++) {
+	        ServerReceiveThread trd = ((ServerReceiveThread)vClient.elementAt(i));	//접속자별 Msg 처리 Thread 생성
+	        if (excludedClient == null || trd != excludedClient) {
+	        	trd.socketOut.println(msg);
+	        }
+	    }
+	}
+	
+	//server 채팅화면에 출력
+	private void appendMsgToChat(String msg) {
+	    showDlgBox.append(msg + "\n");
+	    showDlgBox.setCaretPosition(showDlgBox.getDocument().getLength());	// 스크롤바의 위치를 맨 아래로
 	}
 	
 	public class ChatActionHandler implements ActionListener {
@@ -203,8 +221,6 @@ class ChatServer extends JFrame {
 				serverSocket.close();
 			}
 			catch(IOException e) {	}
-			
-			showDlgBox.append("서버를 종료합니다. \n");
 		}//--------- run 끝
 	}//-------------SjChatAcceptThread 끝
 }//-------------ChatServer class 끝
@@ -258,7 +274,7 @@ class ServerReceiveThread extends Thread {	// 메시지 전달 처리 thread
 				socketOut.println(  "<단축키> /h(도움말), /u(접속자목록)");
 				strName = socketIn.readLine();
 				
-				chatServer.broadcast("[" + strName + "] 님이 입장하셨습니다.");
+				chatServer.broadcast("[" + strName + "] 님이 입장하셨습니다.", this);
 				
 				while((strInput = socketIn.readLine()) != null) {	// client에서 가져올 정보가 존재하는 동안
 					if(strInput.equals("/h")) {
