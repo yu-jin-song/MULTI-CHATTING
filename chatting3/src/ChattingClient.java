@@ -28,7 +28,7 @@ public class ChattingClient extends JFrame {
 		serverIp = new JTextField("localhost", 10);
 		portNo = new JTextField("1234", 10);
 		userName = new JTextField("¼Õ´Ô",10);
-		sendTextBox = new JTextField(30);
+		sendTextBox = new JTextField(21);
 		
 		connectBt = new JButton("Connect");
 		disconnectBt = new JButton("Disconnect");
@@ -39,19 +39,20 @@ public class ChattingClient extends JFrame {
 		JScrollPane scrollPane11 = new JScrollPane(showDlgBox);
 		
 		midPan.setLayout(new BorderLayout());
-		midPan.add("North", scrollPane11);
-		midPan.add("Center", sendTextBox);
+		midPan.add("Center", scrollPane11);
+		midPan.add("South", sendTextBox);
 		
 		topPan.setLayout(new GridLayout(4, 2, 0, 10));
-		topPan.add(new JLabel("Server Ip"));
+		topPan.add(new Label("Server Ip"));
 		topPan.add(serverIp);
-		topPan.add(new JLabel("Port No"));
+		topPan.add(new Label("Port No"));
 		topPan.add(portNo);
-		topPan.add(new JLabel("Name"));
+		topPan.add(new Label("Name"));
 		topPan.add(userName);
 		topPan.add(connectBt);
 		topPan.add(disconnectBt);
 		
+		pan.setLayout(new BorderLayout());
 		pan.add("North", topPan);
 		pan.add("Center", midPan);
 		pan.add("South", sendButton);
