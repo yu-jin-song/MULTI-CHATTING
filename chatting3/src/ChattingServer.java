@@ -40,6 +40,7 @@ class ChatServer extends JFrame {
 	Vector <ServerReceiveThread> vClient; // 접속자 정보 저장
 	Socket dataSocket;	// 메시지 출력 창
 	boolean listening;
+	boolean isServerTerminated;	// 서버 종료 여부
 	
 	public ChatServer() {	}
 	public ChatServer(String str) {
@@ -96,6 +97,8 @@ class ChatServer extends JFrame {
 		sendButton.setEnabled(false);
 		sendMsgHandler = new SendMsgHandler();
 		sendButton.addActionListener(sendMsgHandler);
+		sendTextBox.setText("대화할 수 없습니다.");
+		sendTextBox.setEnabled(false);
 		sendTextBox.addActionListener(sendMsgHandler);
 		
 		midPan.setLayout(new BorderLayout());
@@ -139,8 +142,10 @@ class ChatServer extends JFrame {
 	
 	//server 채팅화면에 출력
 	private void appendMsgToChat(String msg) {
-	    showDlgBox.append(msg + "\n");
-	    showDlgBox.setCaretPosition(showDlgBox.getDocument().getLength());	// 스크롤바의 위치를 맨 아래로
+		if(!isServerTerminated) {
+			showDlgBox.append(msg + "\n");
+		    showDlgBox.setCaretPosition(showDlgBox.getDocument().getLength());	// 스크롤바의 위치를 맨 아래로
+		}
 	}
 	
 	public class ChatActionHandler implements ActionListener {
@@ -153,6 +158,8 @@ class ChatServer extends JFrame {
 				startBt.setEnabled(false);
 				stopBt.setEnabled(true);
 				sendButton.setEnabled(true);
+				sendTextBox.setText("");
+				sendTextBox.setEnabled(true);
 				sendTextBox.requestFocus();	// 메시지 입력창으로 focus 보내기
 			}
 			else {	// stop 버튼 눌렀을 때
@@ -160,10 +167,14 @@ class ChatServer extends JFrame {
 				startBt.setEnabled(true);
 				stopBt.setEnabled(false);
 				sendButton.setEnabled(false);
+				sendTextBox.setText("대화할 수 없습니다.");
+				sendTextBox.setEnabled(false);
 				listening = false;
 					
 				try {
 					serverSocket.close();	// server socket 종료
+					isServerTerminated = true;	// Server 종료 표시
+					broadcast("SERVER-TERMINATED");	// client에 server 종료 상태 알리기
 				} catch(IOException e1) {
 					e1.printStackTrace();
 				}
@@ -247,6 +258,7 @@ class ServerReceiveThread extends Thread {	// 메시지 전달 처리 thread
 			ServerReceiveThread trd = ((ServerReceiveThread)chatServer.vClient.elementAt(i));
 			socketOut.println( trd.strName );
 		}
+		
 		strMsg = "[" + strName + "] 님이 퇴장하셨습니다.";
 		chatServer.broadcast(strMsg);
 	}

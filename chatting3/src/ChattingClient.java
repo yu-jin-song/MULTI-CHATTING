@@ -29,6 +29,8 @@ public class ChattingClient extends JFrame {
 		portNo = new JTextField("1234", 10);
 		userName = new JTextField("손님",10);
 		sendTextBox = new JTextField(21);
+		sendTextBox.setText("대화할 수 없습니다.");
+		sendTextBox.setEnabled(false);
 		
 		connectBt = new JButton("Connect");
 		disconnectBt = new JButton("Disconnect");
@@ -107,6 +109,8 @@ public class ChattingClient extends JFrame {
 				connectBt.setEnabled(false);
 				disconnectBt.setEnabled(true);
 				sendButton.setEnabled(true);
+				sendTextBox.setText("");
+				sendTextBox.setEnabled(true);
 			}
 			else {
 				showDlgBox.append("잘못된 Server 입니다.\n");
@@ -133,6 +137,8 @@ public class ChattingClient extends JFrame {
 				connectBt.setEnabled(true);
 				disconnectBt.setEnabled(false);
 				sendButton.setEnabled(false);
+				sendTextBox.setText("대화할 수 없습니다.");
+				sendTextBox.setEnabled(false);
 			} catch(IOException e) {
 				showDlgBox.append("입출력 Error\n");
 			}
@@ -146,7 +152,7 @@ public class ChattingClient extends JFrame {
 			try {
 				strMsg = sendTextBox.getText();
 				if(!strMsg.isEmpty()) {	// 전송하려는 메시지가 존재하는 경우
-					socketOut.println(strMsg );	// server로 전송
+					socketOut.println(strMsg);	// server로 전송
 					sendTextBox.setText("");	// 메시지 입력창 초기화
 					sendTextBox.requestFocus();	// 메시지 입력창에 focus
 				}
@@ -169,30 +175,35 @@ public class ChattingClient extends JFrame {
 	private JTextField sendTextBox;	// 전송할 메시지 입력 창
 	private JTextField serverIp, portNo, userName;	// server IP, port 번호, 대화명
 	private JButton connectBt, disconnectBt, sendButton;	// 접속, 접속중단, 전송 버튼
-
+	
+	
+	
+	class ChatReceiveThread extends Thread {	// 전송되어 온 메시지 처리 Thread
+		BufferedReader socketIn = null;
+		JTextArea showDlgBox;
+		String strSocket;
+		
+		ChatReceiveThread() {	}
+		ChatReceiveThread(BufferedReader socketIn, JTextArea showDlgBox) {
+			this.socketIn = socketIn;
+			this.showDlgBox = showDlgBox;
+		}
+		
+		public void run() {
+			try {
+				while((strSocket = socketIn.readLine()) != null) {
+					if (strSocket.equals("SERVER-TERMINATED")) {
+						disconnectBt.doClick();
+	                    throw new Exception();
+	                }
+					
+					showDlgBox.append(strSocket + "\n");
+					showDlgBox.setCaretPosition(showDlgBox.getDocument().getLength());
+				}	// server를 통하여 출력하므로 직접 출력x
+			}
+			catch(Exception e) {
+				showDlgBox.append("연결이 끊겼습니다. \n");
+			}
+		}
+	}	//-------------------ChatReceiveThread class 끝
 }	//-------------------ChattingClient class 끝
-
-
-class ChatReceiveThread extends Thread {	// 전송되어 온 메시지 처리 Thread
-	BufferedReader socketIn = null;
-	JTextArea showDlgBox;
-	String strSocket;
-	
-	ChatReceiveThread() {	}
-	ChatReceiveThread(BufferedReader socketIn, JTextArea showDlgBox) {
-		this.socketIn = socketIn;
-		this.showDlgBox = showDlgBox;
-	}
-	
-	public void run() {
-		try {
-			while((strSocket = socketIn.readLine()) != null) {
-				showDlgBox.append(  strSocket + "\n");
-				showDlgBox.setCaretPosition(showDlgBox.getDocument().getLength());
-			}	// server를 통하여 출력하므로 직접 출력x
-		}
-		catch(Exception e) {
-			showDlgBox.append("연결이 끊겼습니다. \n");
-		}
-	}
-}	//-------------------ChatReceiveThread class 끝
