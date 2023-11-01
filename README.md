@@ -1,5 +1,8 @@
 # Java Multi Chatting
 
+<a href="#"><img src="https://img.shields.io/github/last-commit/yu-jin-song/MULTI-CHATTING.svg?style=flat" /></a>
+<a href="#"><img src="https://img.shields.io/github/languages/top/yu-jin-song/MULTI-CHATTING.svg?colorB=yellow&style=flat" /></a>
+
 다인용 채팅 토이 프로젝트
 - 기간 : 2020.05.07 ~ 2020.05.29 (약 3주)
 - 인원 : 1명(개인)
